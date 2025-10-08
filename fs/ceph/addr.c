@@ -88,7 +88,6 @@ static int ceph_set_page_dirty(struct page *page)
 
 	/* dirty the head */
 	spin_lock(&ci->i_ceph_lock);
-	BUG_ON(ci->i_wr_ref == 0); // caller should hold Fw reference
 	if (__ceph_have_pending_cap_snap(ci)) {
 		struct ceph_cap_snap *capsnap =
 				list_last_entry(&ci->i_cap_snaps,
@@ -1794,9 +1793,6 @@ out:
 static const struct vm_operations_struct ceph_vmops = {
 	.fault		= ceph_filemap_fault,
 	.page_mkwrite	= ceph_page_mkwrite,
-#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
-	.suitable_for_spf = true,
-#endif
 };
 
 int ceph_mmap(struct file *file, struct vm_area_struct *vma)
